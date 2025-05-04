@@ -1,9 +1,13 @@
 import argparse
 import shutil
 
+import torch.cuda
+import torch.multiprocessing as mp
+
 from joeynmt.config import load_config, _check_path
 from pathlib import Path
 from joeynmt.helpers import make_model_dir
+from joeynmt.helpers_for_ddp import get_logger
 
 def main():
     ap = argparse.ArgumentParser("joeynmt")
@@ -30,6 +34,31 @@ def main():
     if args.mode == "train":
         # 将配置文件拷贝一份放到输出目录中
         shutil.copy2(args.config_path, (model_dir / "config.yaml").as_posix())
+
+# make logger
+    logger = get_logger("", log_file=Path(model_dir / f"{args.mode}.log").as_posix())
+    # pkg_version = check_version(cfg.get("joeynmt_version", None))
+    logger.info("Hello! This is Joey-NMT (version %s).", "666")
+
+    if args.use_ddp:
+        n_gpu = torch.cuda.device_count() \
+            if cfg.get("use_cuda", False) and torch.cuda.is_available() else 0
+        if args.mode == "train":
+            assert n_gpu > 1, "gpu数量不对，得大于1"
+            logger.info(f"开始多卡并行{n_gpu}")
+            cfg["use_ddp"] = args.use_ddp
+            mp.spawn(train,args=(n_gpu, cfg, args.skip_test), nprocs=n_gpu)
+        elif args.mode == "test":
+            raise RuntimeError("测试模式，DDP无法使用")
+        elif args.mode == "translate":
+            raise RuntimeError(
+                "翻译模型，DDP无法使用"
+            )
+    else:
+        if args.mode == "train":
+            train(rank=0, world_size=None, cfg=cfg, skip_test=args.skip_test)
+
+
 
 if __name__ == "__main__":
     main()

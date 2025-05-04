@@ -1,0 +1,8 @@
+name: "toy_experiment"
+joeynmt_version: "2.3.0"
+model_dir: "toy_transformer"
+use_cuda: False
+fp16: True
+random_seed: 42
+training:
+  overwrite: True

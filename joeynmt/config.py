@@ -3,6 +3,10 @@ import yaml
 from pathlib import Path
 from typing import Dict
 
+
+
+
+
 def _check_path(path:str, allow_empty:bool=True) -> Path:
     """检查路径是否存在"""
     if path is not None:

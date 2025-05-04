@@ -1,5 +1,7 @@
 import argparse
-from joeynmt.config import load_config
+import shutil
+
+from joeynmt.config import load_config, _check_path
 from pathlib import Path
 from joeynmt.helpers import make_model_dir
 
@@ -24,7 +26,10 @@ def main():
         make_model_dir(
             Path(cfg["model_dir"]), overwrite=cfg["training"].get("overwrite", False)
         )
-
+    model_dir = _check_path(cfg["model_dir"], allow_empty=False)
+    if args.mode == "train":
+        # 将配置文件拷贝一份放到输出目录中
+        shutil.copy2(args.config_path, (model_dir / "config.yaml").as_posix())
 
 if __name__ == "__main__":
     main()

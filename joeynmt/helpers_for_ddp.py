@@ -1,6 +1,7 @@
 import logging
 import torch.distributed as dist
-
+import os
+import torch
 
 def use_ddp() -> bool:
     """Check if DDP environment is available"""
@@ -28,6 +29,30 @@ class MultiProcessAdapter(logging.LoggerAdapter):
         if self.isEnabledFor(level) and flag:
             msg, kwargs = self.process(msg, kwargs)
             self.logger.log(level, msg, *args, **kwargs)
+
+
+def ddp_setup(
+    rank: int,
+    world_size: int,
+    master_addr: str = "localhost",
+    master_port: int = 12355,
+) -> None:
+    """
+    Setup distributed environment
+
+    :param rank: Unique identifier of each process
+    :param world_size: Total number of processes
+    :param master_addr:
+    :param master_port:
+    """
+    if dist.is_available():
+        if "MASTER_ADDR" not in os.environ:
+            os.environ["MASTER_ADDR"] = master_addr
+        if "MASTER_PORT" not in os.environ:
+            os.environ["MASTER_PORT"] = str(master_port)
+
+        dist.init_process_group(backend="nccl", rank=rank, world_size=world_size)
+        torch.cuda.set_device(rank)
 
 
 def get_logger(name: str = "", log_file: str = None) -> logging.Logger:

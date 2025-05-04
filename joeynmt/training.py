@@ -3,9 +3,9 @@
 from typing import Dict
 from pathlib import Path
 from joeynmt.helpers_for_ddp import get_logger, ddp_setup
+from joeynmt.config import log_config, parse_global_args
 
-
-def train(rank: int, world_size: int, cfg: Dict, skip_test: bool=False)
+def train(rank: int, world_size: int, cfg: Dict, skip_test: bool=False):
     """
     
     :param rank: 
@@ -21,3 +21,6 @@ def train(rank: int, world_size: int, cfg: Dict, skip_test: bool=False)
 
         # need to assign file handlers again, after multi-processes are spawned...
         get_logger(__name__, log_file=Path(cfg["model_dir"]) / "train.log")
+    log_config(cfg)
+    args = parse_global_args(cfg, rank=rank, mode="train")
+    print(args)

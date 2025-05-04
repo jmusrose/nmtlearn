@@ -8,6 +8,7 @@ from joeynmt.config import load_config, _check_path
 from pathlib import Path
 from joeynmt.helpers import make_model_dir
 from joeynmt.helpers_for_ddp import get_logger
+from joeynmt.training import train
 
 def main():
     ap = argparse.ArgumentParser("joeynmt")
@@ -56,7 +57,7 @@ def main():
             )
     else:
         if args.mode == "train":
-            train(rank=0, world_size=None, cfg=cfg, skip_test=args.skip_test)ss
+            train(rank=0, world_size=None, cfg=cfg, skip_test=args.skip_test)
 
 
 

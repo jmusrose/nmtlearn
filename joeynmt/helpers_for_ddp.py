@@ -97,3 +97,8 @@ def get_logger(name: str = "", log_file: str = None) -> logging.Logger:
     current_logger.propagate = False  # otherwise root logger prints things again
 
     return MultiProcessAdapter(current_logger, {})
+
+
+def use_ddp() -> bool:
+    """Check if DDP environment is available"""
+    return dist.is_available() and dist.is_initialized()

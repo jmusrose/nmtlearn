@@ -56,7 +56,7 @@ def main():
             )
     else:
         if args.mode == "train":
-            train(rank=0, world_size=None, cfg=cfg, skip_test=args.skip_test)
+            train(rank=0, world_size=None, cfg=cfg, skip_test=args.skip_test)ss
 
 
 
